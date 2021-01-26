@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript">
+		db = {}
+		db.player = {}
+		db.plate = {}
+		db.image = {}
+		db.settings = {}
+		db.lives = {
+			"count":3,
+			"height": 30,
+			"width":30,
+			"padding":15,
+			"score":0
+		}
+	</script>
+	<style type="text/css">
+		#status {
+			position: fixed;
+			top: 0px;
+			right: 0px;
+			padding: 5px;
+			font-size: 40px;
+			background: rgba(50, 50, 50, 1);
+			color: white;
+		}
+	</style>
+	<title>PyPong</title>
+</head>
+<body onload="init()">
+<canvas width="640" height=480 id="game">Ваш браузер не поддерживает данную игру!</canvas>
+<span id="status">0</span>
+<script type="text/javascript">
+	function movePlate(e) {
+		let x = e.x
+		let k =  x - (db.plate.width / 2)
+		db.plate.x_pos = k
+	}
+
+	function init() {
+		let dt = document.getElementById("game")
+		let game = dt.getContext("2d")
+		db.image.player = new Image()
+		db.image.player.src = "ballWhite.png"
+		db.image.live = new Image()
+		db.image.live.src = "live.png"
+		db.image.plate = new Image()
+		db.image.plate.src = "plate.png"
+		db.player.x_pos = 0
+		db.player.y_pos = 20
+		db.player.corner = 135
+		db.player.width = 35
+		db.player.height = 35
+		db.plate.width = 100
+		db.plate.height = 25
+		db.plate.y_pos = 400
+		db.plate.x_pos = (640 - db.plate.width) / 2 
+		dt.onmousemove = movePlate
+		setInterval(event, 1)
+		setInterval(ball, 1)
+	}
+	function event() {
+		let dt = document.getElementById("game")
+		let game = dt.getContext("2d")
+		game.fillStyle = "rgba(100, 200, 255, 0.5)"
+		game.fillRect(0, 0, 640, 480)
+		for (var i = 1; i <= db.lives.count ; i++) {
+			x = 640 - 10 - (db.lives.padding + db.lives.width) *i
+			y = 10
+			game.drawImage(db.image.live, x, y) 
+			
+		}
+		game.drawImage(db.image.plate, db.plate.x_pos, db.plate.y_pos)
+		game.drawImage(db.image.player, db.player.x_pos, db.player.y_pos)
+		document.getElementById("status").innerHTML = db.lives.score
+		if (db.lives.count == 0) {
+			game.fillStyle = "rgba(100, 100, 100, 1)"
+			game.fillRect(0, 0, 640, 480)
+			document.getElementById("status").innerHTML = "Игра Окончена! Результат: " + db.lives.score
+		}
+
+	}
+	function ball() {
+		if (db.lives.count != 0) {
+			if (db.player.y_pos >=db.plate.y_pos && db.player.y_pos <= db.plate.y_pos + db.plate.height) {
+				if (db.player.x_pos >= db.plate.x_pos && db.player.x_pos <=db.plate.x_pos + (db.plate.width /2)) {
+					db.player.corner = 270
+				}
+				if (db.player.x_pos >= db.plate.x_pos+(db.plate.width/2) && db.player.x_pos <= db.plate.x_pos + db.plate.width) {
+					db.player.corner = 45
+				}
+			}
+
+			if (db.player.x_pos+db.player.width >= 640) {
+				if (db.player.corner == 45) {
+					db.player.corner = 270
+				} else {
+					db.player.corner = 225
+				}
+				
+			}
+			if (db.player.y_pos <= 0) {
+				db.lives.score +=1
+				if (db.player.corner == 270){
+					db.player.corner = 225
+				} else {
+					db.player.corner = 135
+				}
+			}
+
+			if (db.player.x_pos <= 0) {
+				if (db.player.corner == 270) {
+					db.player.corner = 45
+				} else {
+					db.player.corner = 135
+				}
+				
+			}
+			if (db.player.y_pos+db.player.height>= 480) {
+				db.lives.count -= 1
+				db.player.x_pos = 20
+				db.player.y_pos = 20
+				db.player.corner = 135
+
+			}
+
+
+			if (db.player.corner == 135) {
+				db.player.x_pos = db.player.x_pos + 2
+				db.player.y_pos = db.player.y_pos + 2
+			}
+			if (db.player.corner == 45) {
+				db.player.x_pos = db.player.x_pos + 2
+				db.player.y_pos = db.player.y_pos -2 
+			}
+			if (db.player.corner == 270) {
+				db.player.x_pos = db.player.x_pos - 2
+				db.player.y_pos = db.player.y_pos - 2
+			}
+			if (db.player.corner == 225) {
+				db.player.x_pos = db.player.x_pos - 2
+				db.player.y_pos = db.player.y_pos +2
+			}
+		} 
+	}
+</script>
+</body>
+</html>
